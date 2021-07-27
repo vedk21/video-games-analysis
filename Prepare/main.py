@@ -1,4 +1,9 @@
+import sys
+import os
 import requests
+# add internal packages
+sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'config'))
+from api_config import API_CONFIG
 
 def getGamesData(URL, params):
   games_list = []
@@ -103,18 +108,14 @@ def getGenres(genres):
   return genre_list
 
 if __name__ == '__main__':
-  RAWG_GAMING_PLATFORM_URL = 'https://api.rawg.io/api/games'
-  # API Key
-  API_KEY = '912d6827a6cf4170861f11df0a82f501'
-  # query params
   params = {
-    'key': API_KEY,
+    'key': API_CONFIG['API_KEY'],
     'page': 1,
     'page_size': 40, # max size aacepted by API
     'dates': '2015-01-01,2015-01-31',
     'ordering': '-rating' # '-' means descending order
   }
 
-  games_data = getGamesData(RAWG_GAMING_PLATFORM_URL, params)
-  # Prepare data
-  print(prepareGamesData(games_data))
+  games_data = getGamesData(API_CONFIG['API_BASE_URL'], params)
+
+  prepareGamesData(games_data)
