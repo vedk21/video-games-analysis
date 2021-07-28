@@ -4,6 +4,8 @@ import requests
 # add internal packages
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'config'))
 from api_config import API_CONFIG
+from mysql_config import MYSQL_DATABASE_CONFIG
+from mysql_server import add_games_data_into_mysql
 
 def getGamesData(URL, params):
   games_list = []
@@ -118,4 +120,6 @@ if __name__ == '__main__':
 
   games_data = getGamesData(API_CONFIG['API_BASE_URL'], params)
 
-  prepareGamesData(games_data)
+  formated_game_data = prepareGamesData(games_data)
+
+  add_games_data_into_mysql(MYSQL_DATABASE_CONFIG['DATABASE_NAME'], MYSQL_DATABASE_CONFIG['TABLE_NAME'], formated_game_data['sql'])
