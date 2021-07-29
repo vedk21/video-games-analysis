@@ -58,9 +58,10 @@ def insert_data_into_table(db_connection, db_cursor, table_name, insert_into_tab
     db_cursor.executemany(insert_into_table_statement.format(table_name), insert_data)
     # Make sure data is committed to the database
     db_connection.commit()
+    print('Data dumped successfully.')
   except mysql.connector.Error as err:
     if err.errno == errorcode.ER_DUP_ENTRY:
-      print("Duplicate entry.")
+      print("Duplicate entries. No insert opertion performed")
     else:
       print(err.msg)
       db_connection.close()
@@ -87,8 +88,6 @@ def add_games_data_into_mysql(DB_NAME, TABLE_NAME, GAMES_DATA):
     create_or_use_database(db_connection, db_cursor, DB_NAME)
     create_or_use_table(db_connection, db_cursor, TABLE_NAME, CRAETE_TABLE_STATEMENT)
     insert_data_into_table(db_connection, db_cursor, TABLE_NAME, INSERT_INTO_TABLE_STATEMENT, GAMES_DATA)
-
-    print('Data dumped successfully.')
 
     # Close the connection and cursor once done
     db_cursor.close()
