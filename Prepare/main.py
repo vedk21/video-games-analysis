@@ -1,6 +1,7 @@
 import sys
 import os
 import requests
+import pandas as pd
 # add internal packages
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'config'))
 from api_config import API_CONFIG
@@ -8,6 +9,8 @@ from mysql_config import MYSQL_DATABASE_CONFIG
 from mysql_client import add_games_data_into_mysql
 from mongo_config import MONGO_DATABASE_CONFIG
 from mongo_client import add_games_data_into_mongodb
+from parquet_config import PARQUET_CONFIG
+from parquet_client import write_to_parquet
 
 def getGamesData(URL, params):
   games_list = []
@@ -59,7 +62,7 @@ def prepareParquetData(game):
   return {
     'id': game['id'],
     'platforms': getPlatforms(game['parent_platforms']) if 'parent_platforms' in game else [],
-    'store': getStores(game['stores']) if 'stores' in game else [],
+    'stores': getStores(game['stores']) if 'stores' in game else [],
     'genres': getGenres(game['genres']) if 'genres' in game else []
   }
 
@@ -111,6 +114,31 @@ def getGenres(genres):
   
   return genre_list
 
+def add_to_pandas_df(game, items ,parquet_df):
+  for item in items:
+    parquet_df['game_id'].append(game['id'])
+    parquet_df['id'].append(item['id'])
+    parquet_df['slug'].append(item['slug'])
+    parquet_df['name'].append(item['name'])
+
+  return parquet_df
+  
+
+def convert_to_pandas_df(parquet_data):
+  platforms_parquet_df = {'game_id': [], 'id': [], 'slug': [], 'name': []}
+  stores_parquet_df = {'game_id': [], 'id': [], 'slug': [], 'name': []}
+  genres_parquet_df = {'game_id': [], 'id': [], 'slug': [], 'name': []}
+  for game in parquet_data:
+    platforms_parquet_df = add_to_pandas_df(game, game['platforms'], platforms_parquet_df)
+    stores_parquet_df = add_to_pandas_df(game, game['stores'], stores_parquet_df)
+    genres_parquet_df = add_to_pandas_df(game, game['genres'], genres_parquet_df)
+
+  return {
+    'platforms_df': platforms_parquet_df,
+    'stores_df': stores_parquet_df,
+    'genres_df': genres_parquet_df
+  }
+
 if __name__ == '__main__':
   params = {
     'key': API_CONFIG['API_KEY'],
@@ -125,9 +153,19 @@ if __name__ == '__main__':
   formated_game_data = prepareGamesData(games_data)
 
   # add mysql data
-  print(len(formated_game_data['sql']))
-  print(len(formated_game_data['no_sql']))
-  print(len(formated_game_data['parquet']))
   add_games_data_into_mysql(MYSQL_DATABASE_CONFIG['DATABASE_NAME'], MYSQL_DATABASE_CONFIG['TABLE_NAME'], formated_game_data['sql'])
   # add mongodb data
   add_games_data_into_mongodb(MONGO_DATABASE_CONFIG['DATABASE_NAME'], MONGO_DATABASE_CONFIG['COLLECTION_NAME'], formated_game_data['no_sql'])
+
+  # prepare dataframe from dict
+  parquet_data = formated_game_data['parquet']
+  parquet_dataframe = convert_to_pandas_df(parquet_data)
+
+  platforms_df = pd.DataFrame(data = parquet_dataframe['platforms_df'])
+  stores_df = pd.DataFrame(data = parquet_dataframe['stores_df'])
+  genres_df = pd.DataFrame(data = parquet_dataframe['genres_df'])
+
+  # write to parquet
+  write_to_parquet(platforms_df, '{base_path}/platforms.gzip.parq'.format(base_path = PARQUET_CONFIG['PATH']))
+  write_to_parquet(stores_df, '{base_path}/stores.gzip.parq'.format(base_path = PARQUET_CONFIG['PATH']))
+  write_to_parquet(genres_df, '{base_path}/genres.gzip.parq'.format(base_path = PARQUET_CONFIG['PATH']))
