@@ -19,7 +19,7 @@ def insert_data_into_collection(cln, insert_data):
   print('NOSQL Data inserted Successfully')
 
 def add_games_data_into_mongodb(db_name, collection_name, data):
-  db_connection = MongoClient('mongodb://{host}:{port}/'.format(host = MONGO_SERVER_CONFIG['host'], port = MONGO_SERVER_CONFIG['port']))
+  db_connection = MongoClient('mongodb://{username}:{password}@{host}:{port}/'.format(username = MONGO_SERVER_CONFIG['username'], password = MONGO_SERVER_CONFIG['password'], host = MONGO_SERVER_CONFIG['host'], port = MONGO_SERVER_CONFIG['port']))
   print('Started MongoDB Connection')
   
   created_collection = create_or_use_database_and_collection(db_connection, db_name, collection_name)
