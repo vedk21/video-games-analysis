@@ -1,0 +1,31 @@
+version: "3"
+services:
+  mysql:
+    image: "mysql"
+    restart: always
+    environment:
+      MYSQL_USER: "spark-user"
+      MYSQL_PASSWORD: "spark123"
+      MYSQL_ROOT_PASSWORD: "root123"
+    ports:
+      - "3307:3307"
+    expose:
+      - "3307"
+    volumes:
+      - games-db:/var/lib/mysql
+  
+  mongo:
+    image: "mongo"
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "spark-user"
+      MONGO_INITDB_ROOT_PASSWORD: "spark123"
+    ports:
+      - "27018:27018"
+    expose:
+      - "27018"
+    volumes:
+      - games-db:/data/db
+
+volumes:
+  games-db:
