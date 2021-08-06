@@ -4,9 +4,10 @@ services:
     image: "mysql"
     restart: always
     environment:
+      MYSQL_ROOT_PASSWORD: "root123"
+      MYSQL_DATABASE: "video_games_analysis"
       MYSQL_USER: "spark-user"
       MYSQL_PASSWORD: "spark123"
-      MYSQL_ROOT_PASSWORD: "root123"
     ports:
       - "3307:3307"
     expose:

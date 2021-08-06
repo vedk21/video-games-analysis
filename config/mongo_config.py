@@ -1,5 +1,5 @@
 MONGO_SERVER_CONFIG = {
-  'host': '127.0.0.1',
+  'host': 'mongo',
   'port': 27017,
   'username': 'spark-user',
   'password': 'spark123'

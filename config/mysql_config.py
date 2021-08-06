@@ -1,7 +1,8 @@
 MYSQL_SERVER_CONFIG = {
   'user': 'spark-user',
   'password': 'spark123',
-  'host': '127.0.0.1',
+  'host': 'mysql',
+  'port': 3306,
   'raise_on_warnings': True
 }
 

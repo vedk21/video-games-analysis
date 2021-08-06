@@ -1,5 +1,6 @@
 import sys
 import os
+# Please install mysql-connector-python for this package
 import mysql.connector
 from mysql.connector import errorcode
 # add internal packages
