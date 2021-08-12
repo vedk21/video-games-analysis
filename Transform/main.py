@@ -5,6 +5,8 @@ import os
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'config'))
 from mysql_config import MYSQL_DATABASE_CONFIG, MYSQL_SERVER_CONFIG
 from mongo_config import MONGO_DATABASE_CONFIG, MONGO_SERVER_CONFIG
+
+from clean_and_format_basic_details import clean_and_format_basic_details
 # Do this to set default encoding to 'utf-8'
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
@@ -28,21 +30,25 @@ if __name__ == '__main__':
 
   games_basic_details_df.show(n = 5, truncate = False)
 
+  formatted_df = clean_and_format_basic_details(games_basic_details_df)
+
+  formatted_df.show()
+
   spark_mysql.stop()
 
-  spark_mongo = (SparkSession
-    .builder
-    .appName('CleanMongoData')
-    .getOrCreate())
+  # spark_mongo = (SparkSession
+  #   .builder
+  #   .appName('CleanMongoData')
+  #   .getOrCreate())
 
-  # MONGODB connection in spark
-  games_attributes_details_df = (spark_mongo.read.format('mongo')
-    .option('uri', 'mongodb://{username}:{password}@{hostname}:{port}/'.format(username = MONGO_SERVER_CONFIG['username'], password = MONGO_SERVER_CONFIG['password'], hostname = MONGO_SERVER_CONFIG['host'], port = MONGO_SERVER_CONFIG['port']))
-    .option('database', MONGO_DATABASE_CONFIG['DATABASE_NAME'])
-    .option('collection', MONGO_DATABASE_CONFIG['COLLECTION_NAME'])
-    .load())
+  # # MONGODB connection in spark
+  # games_attributes_details_df = (spark_mongo.read.format('mongo')
+  #   .option('uri', 'mongodb://{username}:{password}@{hostname}:{port}/'.format(username = MONGO_SERVER_CONFIG['username'], password = MONGO_SERVER_CONFIG['password'], hostname = MONGO_SERVER_CONFIG['host'], port = MONGO_SERVER_CONFIG['port']))
+  #   .option('database', MONGO_DATABASE_CONFIG['DATABASE_NAME'])
+  #   .option('collection', MONGO_DATABASE_CONFIG['COLLECTION_NAME'])
+  #   .load())
 
-  games_attributes_details_df.show(n = 5, truncate = False)
+  # games_attributes_details_df.show(n = 5, truncate = False)
 
-  # Stop session
-  spark_mongo.stop()
+  # # Stop session
+  # spark_mongo.stop()
